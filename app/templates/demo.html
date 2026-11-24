@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ n.title }}: демо ИИ-администратора{% endblock %}
+{% block body %}
+<section style="padding-top:28px">
+  <div class="wrap">
+    <p class="muted"><a href="/">← Все демо</a></p>
+    <h1 style="font-size:clamp(24px,3.4vw,34px)">{{ n.title }}: {{ n.brand }}</h1>
+    <p class="lead">{{ n.tagline }}</p>
+
+    <div class="grid" style="grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:18px;margin-top:18px">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--bg-2)">
+          <span class="dot"></span>
+          <b>{{ n.brand }}</b>
+          <span class="muted" style="margin-left:auto">бот на связи</span>
+        </div>
+        <div id="log" style="height:min(58vh,460px);overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px"></div>
+        <div style="padding:10px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap">
+          {% for q in n.questions %}
+          <button class="quick" data-q="{{ q }}" style="border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 11px;font-size:13px;cursor:pointer">{{ q }}</button>
+          {% endfor %}
+        </div>
+        <form id="form" style="display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)">
+          <input id="inp" autocomplete="off" placeholder="Напишите вопрос, например: визитки 1000 штук"
+                 style="flex:1;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:15px">
+          <button type="submit" class="btn" style="padding:11px 16px">Отправить</button>
+        </form>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="tag">Что этот бот умеет</div>
+          <ul style="padding-left:18px;margin:8px 0 0">
+            {% for k in n.knows %}<li>{{ k }}</li>{% endfor %}
+          </ul>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="tag">Правила цены</div>
+          <p class="muted" style="margin:8px 0 0">{{ n.price_note }}</p>
+        </div>
+        <div class="card">
+          <div class="tag">Проверка за минуту</div>
+          <p class="muted" style="margin:8px 0 0">Спросите одно и то же с разным объёмом и со словом «срочно».
+            Потом оставьте телефон и откройте раздел <a href="/admin">Заявки</a>: увидите, как заявка легла в базу.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  window.DEMO = { slug: "{{ n.slug }}", greeting: {{ n.greeting|tojson }} };
+</script>
+<script src="/static/demo.js"></script>
+{% endblock %}

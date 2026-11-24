@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Заявки из демо{% endblock %}
+{% block body %}
+<section>
+  <div class="wrap">
+    <h1 style="font-size:clamp(24px,3.4vw,32px)">Заявки из демо</h1>
+    <p class="lead">Здесь то, что боты собрали сами: вопрос клиента, смета, телефон. Это и есть работа администратора,
+      только без администратора.</p>
+    <div class="grid cards" style="margin:16px 0 20px">
+      <div class="card"><div class="tag">Заявок</div><div class="name">{{ stats.leads }}</div></div>
+      <div class="card"><div class="tag">С телефоном</div><div class="name">{{ stats.with_phone }}</div></div>
+      <div class="card"><div class="tag">Диалогов</div><div class="name">{{ stats.sessions }}</div></div>
+      <div class="card"><div class="tag">Выгрузка</div><div class="name"><a href="/admin.csv">leads.csv</a></div></div>
+    </div>
+    {% if rows %}
+    <div class="card" style="padding:6px 14px 14px;overflow:auto">
+      <table>
+        <thead><tr><th>№</th><th>Ниша</th><th>Телефон</th><th>Вопрос</th><th>Смета</th><th>Когда</th></tr></thead>
+        <tbody>
+        {% for r in rows %}
+          <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ niches[r.niche].title if r.niche in niches else r.niche }}</td>
+            <td>{{ r.phone or "нет" }}</td>
+            <td>{{ (r.question or "")[:90] }}</td>
+            <td class="muted" style="max-width:320px">{{ (r.quote or "")[:120] }}</td>
+            <td class="muted">{{ r.created_at[:16].replace("T", " ") }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="note">Пока пусто. Откройте любое демо, назовите услугу и телефон, заявка появится здесь сама.</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
