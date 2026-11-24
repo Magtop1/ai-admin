@@ -31,7 +31,7 @@ class Quote:
     def as_text(self) -> str:
         rub = lambda v: f"{v:,}".replace(",", " ") + " ₽"
         out = [f"{self.service.name}: {rub(self.unit_price)} {self.service.unit}"]
-        if self.qty:
+        if self.qty and self.service.per_unit:
             out.append(f"Тираж: {self.qty} шт, скидка от объёма {round((1 - self.tier_k) * 100) if self.tier_k < 1 else 0}%")
             out.append(f"Работа: {rub(self.subtotal)}")
         if self.urgent_fee:

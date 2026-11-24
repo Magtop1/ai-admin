@@ -86,7 +86,8 @@ def answer(niche: Niche, state: dict, text: str) -> tuple[str, dict | None, dict
         tail = f" Если нужен расчёт, назовите услугу и объём. {_service_hint(niche)}"
         return ("Понял вопрос, но пока не вижу, о какой услуге речь." + tail), None, state, attach_lead
 
-    q = pricing.quote(niche, service, state.get("qty"), bool(state.get("urgent")))
+    qty = state.get("qty") if service.per_unit else None
+    q = pricing.quote(niche, service, qty, bool(state.get("urgent")))
     quote_payload = _quote_payload(q)
     state["stage"] = "quoted"
 

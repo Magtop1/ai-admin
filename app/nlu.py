@@ -8,7 +8,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from .catalog import Niche, find_service
+from .catalog import Niche, find_service, hits
 
 NUM_WORDS = {
     "один": 1, "одну": 1, "два": 2, "две": 2, "три": 3, "четыре": 4, "пять": 5,
@@ -35,7 +35,8 @@ class Parsed:
 
 
 def _qty(text: str) -> int | None:
-    low = text.lower().replace("ё", "е")
+    # телефон это не тираж: цифры из номера выкидываем до разбора
+    low = PHONE_RE.sub(" ", text.lower().replace("ё", "е"))
     m = QTY_RE.search(low)
     if m:
         num = int(re.sub(r"\D", "", m.group(1)) or 0)
@@ -46,7 +47,7 @@ def _qty(text: str) -> int | None:
                 return num * 1000 if unit.startswith("тыс") else num
             return num
     for word, val in NUM_WORDS.items():
-        if word in low:
+        if hits(word, low):
             return val
     return None
 
