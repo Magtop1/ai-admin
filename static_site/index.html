@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ИИ-администратор для малого бизнеса: живые демо</title>
+<meta name="description" content="Четыре рабочих демо ИИ-администратора: считают цену по прайсу, отвечают клиенту, ловят заявку. Python и статика, без внешних API.">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="logo" href="./"><span class="dot"></span> ИИ-администратор</a>
+    <nav>
+      <a href="#demos">Демо</a>
+      <a href="#how">Как устроено</a>
+      <a href="#price">Условия</a>
+      <a href="admin.html">Заявки</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <h1>ИИ-администратор, который отвечает клиенту<br>и считает смету без менеджера</h1>
+    <p class="lead">Четыре демо ниже не картинки. Это рабочие боты: спросите цену, назовите тираж, оставьте телефон.
+      Каждый считает по прайсу и честно говорит, чего не знает.</p>
+    <p><a class="btn" href="#demos">Открыть демо</a> <a class="btn ghost" href="#how">Как это сделано</a></p>
+    <div class="badges">
+      <span class="badge">Python 3.13</span>
+      <span class="badge">FastAPI</span>
+      <span class="badge">SQLite</span>
+      <span class="badge">pytest</span>
+      <span class="badge">движок на JS</span>
+      <span class="badge">без внешних API</span>
+      <span class="badge">работает офлайн</span>
+    </div>
+  </div>
+</div>
+
+<section id="demos">
+  <div class="wrap">
+    <h2>Живые демо: четыре ниши</h2>
+    <p class="lead">У каждого бота свой прайс, свои вопросы и свой характер. Это не один шаблон с подменой названия.</p>
+    <div class="grid cards" style="margin-top:18px">
+      
+      <div class="card">
+        <div class="tag">Полиграфия и печать</div>
+        <div class="name">Типография</div>
+        <div class="desc">Считает тираж, срок и цену до того, как клиент позвонил</div>
+        <div class="go"><a href="demo/typography.html">Поговорить с ботом →</a></div>
+      </div>
+      
+      <div class="card">
+        <div class="tag">Ремонт и обслуживание</div>
+        <div class="name">Автосервис</div>
+        <div class="desc">Называет вилку по работе и записывает на свободное окно</div>
+        <div class="go"><a href="demo/avtoservis.html">Поговорить с ботом →</a></div>
+      </div>
+      
+      <div class="card">
+        <div class="tag">Клиника, приём врача</div>
+        <div class="name">Стоматология</div>
+        <div class="desc">Отвечает про цены и записывает на приём, не спрашивая паспорт</div>
+        <div class="go"><a href="demo/stomatology.html">Поговорить с ботом →</a></div>
+      </div>
+      
+      <div class="card">
+        <div class="tag">Клуб, продажи и расписание</div>
+        <div class="name">Фитнес</div>
+        <div class="desc">Продаёт карту и пробное, знает расписание и тренеров</div>
+        <div class="go"><a href="demo/fitness.html">Поговорить с ботом →</a></div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>Как это сделано, без магии</h2>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+      <div>
+        <ol class="steps">
+          <li><b>Разбор вопроса.</b> Из живого текста достаём услугу, тираж, срочность и телефон. Понимает «5 тыс», «тысяча штук», «к утру».</li>
+          <li><b>Расчёт по прайсу.</b> Цена из каталога, скидка от объёма и наценка за срочность считаются кодом, а не моделью.</li>
+          <li><b>Диалог.</b> Бот спрашивает только то, чего не хватает для сметы, и отвечает на два вопроса в одном сообщении.</li>
+          <li><b>Заявка.</b> Телефон сохраняется, диалог остаётся целиком, выгрузка в CSV.</li>
+        </ol>
+        <div class="note">Нейросеть здесь не нужна: вопрос узкий, ответ проверяемый. Поэтому бот не выдумывает цены
+          и работает даже когда интернет упал.</div>
+      </div>
+      <div>
+        <pre><code><span class="c"># скидка от объёма и срочность</span>
+<span class="k">def</span> tier_for(service, qty, niche):
+    best = 1.0
+    <span class="k">for</span> edge <span class="k">in</span> sorted(niche.unit_tiers):
+        <span class="k">if</span> qty &gt;= edge:
+            best = niche.unit_tiers[edge]
+    <span class="k">return</span> best
+
+<span class="k">def</span> quote(niche, service, qty, urgent):
+    k = tier_for(service, qty, niche)
+    subtotal = r(service.price * k * qty / 1000)
+    urgent_fee = r(subtotal * (niche.urgent_k - 1))
+</code></pre>
+        <p class="muted">Правила расчёта проверяются тестами. Есть отдельный тест, который сверяет расчёт
+          на JS с расчётом на Python: клиент в демо видит ту же цену, что и в боте.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="proof">
+  <div class="wrap">
+    <h2>Что можно проверить прямо сейчас</h2>
+    <div class="grid cards">
+      <div class="card"><h3>Смета по прайсу</h3><p class="muted">Спросите «визитки 500» и «визитки 5000». Цена за тысячу упадёт, это скидка от объёма.</p></div>
+      <div class="card"><h3>Честное незнание</h3><p class="muted">Спросите то, чего нет в прайсе. Бот скажет, что уточнит администратор, вместо выдуманной цифры.</p></div>
+      <div class="card"><h3>Два вопроса сразу</h3><p class="muted">В фитнесе спросите «есть пробное и сколько стоит месяц». Ответит на оба.</p></div>
+      <div class="card"><h3>Заявка и CSV</h3><p class="muted">Оставьте телефон, откройте «Заявки» и выгрузите CSV. В статической версии заявки хранятся в вашем браузере.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="price">
+  <div class="wrap">
+    <h2>Условия</h2>
+    <div class="grid price-cards">
+      
+      <div class="card price">
+        <div class="tag">Типография</div>
+        <div class="sum">59000</div>
+        <p class="muted">внедрение за 7 дней</p>
+        <ul style="padding-left:18px;margin:8px 0 0">
+          <li>бот на вашем прайсе и услугах</li>
+          <li>чат на сайте, Telegram и WhatsApp</li>
+          <li>заявки в таблицу, выгрузка в CSV</li>
+          <li>ведение 22000 в месяц, по желанию</li>
+          <li>оплата 50% после запуска</li>
+        </ul>
+      </div>
+      
+      <div class="card price">
+        <div class="tag">Автосервис</div>
+        <div class="sum">59000</div>
+        <p class="muted">внедрение за 7 дней</p>
+        <ul style="padding-left:18px;margin:8px 0 0">
+          <li>бот на вашем прайсе и услугах</li>
+          <li>чат на сайте, Telegram и WhatsApp</li>
+          <li>заявки в таблицу, выгрузка в CSV</li>
+          <li>ведение 22000 в месяц, по желанию</li>
+          <li>оплата 50% после запуска</li>
+        </ul>
+      </div>
+      
+      <div class="card price">
+        <div class="tag">Стоматология</div>
+        <div class="sum">69000</div>
+        <p class="muted">внедрение за 7 дней</p>
+        <ul style="padding-left:18px;margin:8px 0 0">
+          <li>бот на вашем прайсе и услугах</li>
+          <li>чат на сайте, Telegram и WhatsApp</li>
+          <li>заявки в таблицу, выгрузка в CSV</li>
+          <li>ведение 25000 в месяц, по желанию</li>
+          <li>оплата 50% после запуска</li>
+        </ul>
+      </div>
+      
+      <div class="card price">
+        <div class="tag">Фитнес</div>
+        <div class="sum">59000</div>
+        <p class="muted">внедрение за 7 дней</p>
+        <ul style="padding-left:18px;margin:8px 0 0">
+          <li>бот на вашем прайсе и услугах</li>
+          <li>чат на сайте, Telegram и WhatsApp</li>
+          <li>заявки в таблицу, выгрузка в CSV</li>
+          <li>ведение 22000 в месяц, по желанию</li>
+          <li>оплата 50% после запуска</li>
+        </ul>
+      </div>
+      
+    </div>
+    <p class="muted" style="margin-top:14px">Цены в рублях. Без звонков и созвонов: всё решается в переписке.
+      Демо на вашем прайсе собираю до оплаты.</p>
+  </div>
+</section>
+
+<section id="honest">
+  <div class="wrap">
+    <h2>Про портфолио честно</h2>
+    <p class="lead">Клиентских логотипов здесь нет, и чужие работы я не подставлю. Портфолио в этой работе это то,
+      что можно потыкать: живые боты, настоящие прайсы, код и заявки. Первые внедрения запускаются сейчас,
+      поэтому смотрите на механику, а не на логотипы.</p>
+    <p><a class="btn" href="#demos">Потыкать демо</a>
+       <a class="btn ghost" href="https://t.me/hello_nastra">Написать в Telegram</a></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><b>Алексей</b> · <a href="https://t.me/hello_nastra">@hello_nastra</a> · +7 986 925-07-48 ·
+      <a href="mailto:magtope12@gmail.com">magtope12@gmail.com</a></p>
+    <p class="muted">Демо работают на открытом прайсе. Бот считает цену по правилам прайса и честно говорит, чего не знает.</p>
+  </div>
+</footer>
+</body>
+</html>

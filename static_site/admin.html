@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Заявки из демо</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="logo" href="./"><span class="dot"></span> ИИ-администратор</a>
+    <nav>
+      <a href="./#demos">Демо</a>
+      <a href="./#price">Условия</a>
+    </nav>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h1 style="font-size:clamp(24px,3.4vw,32px)">Заявки из демо</h1>
+    <p class="lead">Здесь то, что боты собрали сами: вопрос, смета, телефон. В статической версии заявки лежат
+      в вашем браузере, в серверной версии это база SQLite и общая админка.</p>
+
+    <div class="grid cards" style="margin:16px 0 20px">
+      <div class="card"><div class="tag">Заявок</div><div class="name" id="n-leads">0</div></div>
+      <div class="card"><div class="tag">С телефоном</div><div class="name" id="n-phones">0</div></div>
+      <div class="card"><div class="tag">Диалогов</div><div class="name" id="n-sessions">0</div></div>
+      <div class="card"><div class="tag">Выгрузка</div><div class="name"><a href="#" id="csv">leads.csv</a></div></div>
+    </div>
+
+    <div class="card" style="padding:6px 14px 14px;overflow:auto">
+      <table>
+        <thead><tr><th>№</th><th>Ниша</th><th>Телефон</th><th>Вопрос</th><th>Смета</th><th>Когда</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="muted" id="empty" style="padding:12px 0 0">Пока пусто. Откройте любое демо, назовите услугу и телефон,
+        заявка появится здесь сама.</p>
+    </div>
+    <p style="margin-top:14px"><button class="btn ghost" id="clear" type="button">Очистить заявки</button></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><b>Алексей</b> · <a href="https://t.me/hello_nastra">@hello_nastra</a> · +7 986 925-07-48 ·
+      <a href="mailto:magtope12@gmail.com">magtope12@gmail.com</a></p>
+  </div>
+</footer>
+<script src="assets/admin.js"></script>
+</body>
+</html>

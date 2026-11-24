@@ -13,6 +13,12 @@ from dataclasses import dataclass, field
 from .catalog import Niche, Service
 
 
+def r(x: float) -> int:
+    """Округление половины вверх, как в JS. Иначе Python округляет к чётному
+    и статическая версия разойдётся с серверной на копейку."""
+    return int(x + 0.5) if x >= 0 else -int(-x + 0.5)
+
+
 @dataclass
 class Quote:
     service: Service
@@ -31,7 +37,7 @@ class Quote:
     def price_per_label(self) -> int:
         """Цена в тех же единицах, в которых она указана в прайсе."""
         if self.service.per_unit and self.qty:
-            return round(self.subtotal * 1000 / self.qty) if "1000" in self.service.unit else round(self.subtotal / self.qty)
+            return r(self.subtotal * 1000 / self.qty) if "1000" in self.service.unit else r(self.subtotal / self.qty)
         return self.service.price
 
     def as_text(self, include_note: bool = True) -> str:
@@ -42,9 +48,9 @@ class Quote:
             out = [f"{self.service.name}: {rub(self.price_per_label())} {self.service.unit}"]
         if self.qty and self.service.per_unit:
             if self.tier_k < 1:
-                out.append(f"Тираж: {self.qty} шт, скидка от объёма {round((1 - self.tier_k) * 100)}%")
+                out.append(f"Тираж: {self.qty} шт, скидка от объёма {r((1 - self.tier_k) * 100)}%")
             elif self.tier_k > 1:
-                out.append(f"Тираж: {self.qty} шт, мелкий тираж дороже на {round((self.tier_k - 1) * 100)}%")
+                out.append(f"Тираж: {self.qty} шт, мелкий тираж дороже на {r((self.tier_k - 1) * 100)}%")
             else:
                 out.append(f"Тираж: {self.qty} шт")
             out.append(f"Работа: {rub(self.subtotal)}")
@@ -78,16 +84,16 @@ def quote(niche: Niche, service: Service, qty: int | None = None, urgent: bool =
     if qty and service.per_unit:
         # базовая цена указана за 1000 штук или за лист, приводим к тиражу
         base_for_1000 = service.price / 1000 if service.price > 50 else service.price
-        unit = max(1, round(base_for_1000 * k))
+        unit = max(1, r(base_for_1000 * k))
         subtotal = unit * qty
         if service.price > 50:
-            subtotal = round(service.price * k * qty / 1000)
-            unit = max(1, round(subtotal / qty))
+            subtotal = r(service.price * k * qty / 1000)
+            unit = max(1, r(subtotal / qty))
     else:
         unit = service.price
         subtotal = service.price
 
-    urgent_fee = round(subtotal * (niche.urgent_k - 1)) if urgent and niche.urgent_k > 1 else 0
+    urgent_fee = r(subtotal * (niche.urgent_k - 1)) if urgent and niche.urgent_k > 1 else 0
     # доставка не отменяется срочностью: срочно не значит бесплатно привезти
     delivery = niche.delivery
     total = subtotal + urgent_fee + delivery
@@ -95,9 +101,9 @@ def quote(niche: Niche, service: Service, qty: int | None = None, urgent: bool =
     if service.price == 0:
         lo = hi = 0
     elif service.per_unit:
-        lo, hi = total, round(total * 1.08)
+        lo, hi = total, r(total * 1.08)
     else:
-        lo, hi = total, round(total * 1.35)
+        lo, hi = total, r(total * 1.35)
 
     return Quote(
         service=service, qty=qty, unit_price=unit, subtotal=subtotal, tier_k=k,

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Фитнес: демо ИИ-администратора</title>
+<meta name="description" content="Продаёт карту и пробное, знает расписание и тренеров. Живое демо бота на открытом прайсе.">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body data-niche="fitness">
+<header class="site">
+  <div class="wrap">
+    <a class="logo" href="../"><span class="dot"></span> ИИ-администратор</a>
+    <nav>
+      <a href="../#demos">Демо</a>
+      <a href="../#price">Условия</a>
+      <a href="../admin.html">Заявки</a>
+    </nav>
+  </div>
+</header>
+
+<section style="padding-top:28px">
+  <div class="wrap">
+    <p class="muted"><a href="../">← Все демо</a></p>
+    <h1 style="font-size:clamp(24px,3.4vw,34px)">Фитнес: Клуб на Динамо</h1>
+    <p class="lead">Продаёт карту и пробное, знает расписание и тренеров</p>
+
+    <div class="two-col">
+      <div class="chat">
+        <div class="chat-head">
+          <span class="dot"></span>
+          <span class="who">Клуб на Динамо</span>
+          <span class="st">бот на связи</span>
+        </div>
+        <div id="log"></div>
+        <div class="quick">
+          
+          <button type="button" data-q="Сколько стоит месяц?">Сколько стоит месяц?</button>
+          
+          <button type="button" data-q="Есть пробное занятие?">Есть пробное занятие?</button>
+          
+          <button type="button" data-q="Детские группы и расписание">Детские группы и расписание</button>
+          
+        </div>
+        <form class="send" id="form">
+          <input id="inp" autocomplete="off" placeholder="Напишите вопрос, например: визитки 1000 штук">
+          <button type="submit" class="btn">Отправить</button>
+        </form>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="tag">Что этот бот умеет</div>
+          <ul style="padding-left:18px;margin:8px 0 0">
+            <li>цену карты и пробного</li><li>расписание групп</li><li>что входит в клубную карту</li><li>детские группы</li>
+          </ul>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="tag">Правила цены</div>
+          <p class="muted" style="margin:8px 0 0">Пробное бесплатно, в карту входят бассейн и сауна. Точное расписание бот присылает после записи.</p>
+        </div>
+        <div class="card">
+          <div class="tag">Проверка за минуту</div>
+          <p class="muted" style="margin:8px 0 0">Спросите одно и то же с разным объёмом и со словом «срочно».
+            Потом оставьте телефон и откройте раздел <a href="../admin.html">Заявки</a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><b>Алексей</b> · <a href="https://t.me/hello_nastra">@hello_nastra</a> · +7 986 925-07-48 ·
+      <a href="mailto:magtope12@gmail.com">magtope12@gmail.com</a></p>
+    <p class="muted">Демо считается прямо в браузере: ни сервера, ни интернета не нужно.</p>
+  </div>
+</footer>
+
+<script src="../assets/engine.js"></script>
+<script src="../assets/client.js"></script>
+</body>
+</html>
