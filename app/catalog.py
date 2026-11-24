@@ -151,13 +151,22 @@ def hits(key: str, low: str) -> bool:
     return re.search(left + re.escape(key) + r"(?![а-яa-z0-9])", low) is not None
 
 
-def find_service(niche: Niche, text: str) -> Service | None:
+def find_services(niche: Niche, text: str) -> list[Service]:
+    """Все услуги, о которых спросили, от самой точной формулировки к общей.
+
+    Человек часто спрашивает про две вещи сразу: "есть пробное и сколько стоит
+    месяц". Бот должен ответить на обе, а не выбрать одну.
+    """
     low = text.lower().replace("ё", "е")
-    best: tuple[int, Service] | None = None
+    scored: dict[str, int] = {}
     for s in niche.services:
         for kw in s.keywords:
             if hits(kw, low):
-                score = len(kw)
-                if best is None or score > best[0]:
-                    best = (score, s)
-    return best[1] if best else None
+                scored[s.id] = max(scored.get(s.id, 0), len(kw))
+    order = sorted(scored.items(), key=lambda kv: -kv[1])
+    return [next(s for s in niche.services if s.id == sid) for sid, _ in order]
+
+
+def find_service(niche: Niche, text: str) -> Service | None:
+    found = find_services(niche, text) if hasattr(niche, "services") else []
+    return found[0] if found else None

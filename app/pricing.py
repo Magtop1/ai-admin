@@ -28,21 +28,37 @@ class Quote:
     lines: list[str] = field(default_factory=list)
     note: str = ""
 
-    def as_text(self) -> str:
+    def price_per_label(self) -> int:
+        """Цена в тех же единицах, в которых она указана в прайсе."""
+        if self.service.per_unit and self.qty:
+            return round(self.subtotal * 1000 / self.qty) if "1000" in self.service.unit else round(self.subtotal / self.qty)
+        return self.service.price
+
+    def as_text(self, include_note: bool = True) -> str:
         rub = lambda v: f"{v:,}".replace(",", " ") + " ₽"
-        out = [f"{self.service.name}: {rub(self.unit_price)} {self.service.unit}"]
+        if self.service.price == 0:
+            out = [f"{self.service.name}: бесплатно"]
+        else:
+            out = [f"{self.service.name}: {rub(self.price_per_label())} {self.service.unit}"]
         if self.qty and self.service.per_unit:
-            out.append(f"Тираж: {self.qty} шт, скидка от объёма {round((1 - self.tier_k) * 100) if self.tier_k < 1 else 0}%")
+            if self.tier_k < 1:
+                out.append(f"Тираж: {self.qty} шт, скидка от объёма {round((1 - self.tier_k) * 100)}%")
+            elif self.tier_k > 1:
+                out.append(f"Тираж: {self.qty} шт, мелкий тираж дороже на {round((self.tier_k - 1) * 100)}%")
+            else:
+                out.append(f"Тираж: {self.qty} шт")
             out.append(f"Работа: {rub(self.subtotal)}")
         if self.urgent_fee:
             out.append(f"Срочность: {rub(self.urgent_fee)}")
         if self.delivery:
             out.append(f"Доставка по Москве: {rub(self.delivery)}")
-        if self.total_max > self.total_min:
+        if self.total_max == 0:
+            out.append("Итого: бесплатно")
+        elif self.total_max > self.total_min:
             out.append(f"Итого: от {rub(self.total_min)} до {rub(self.total_max)}")
         else:
             out.append(f"Итого: {rub(self.total_min)}")
-        if self.note:
+        if include_note and self.note:
             out.append(self.note)
         return "\n".join(out)
 

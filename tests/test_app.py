@@ -80,9 +80,15 @@ def test_free_service_stays_free():
 def test_dialog_asks_qty_before_quote():
     text, quote, state, lead = dialog.answer(TYPO, {}, "сколько стоят визитки")
     assert "тираж" in text.lower()
-    assert quote["service_id"] == "cards"
+    assert quote is None  # без тиража смету не называем
     assert state["service"] == "cards"
     assert lead is False
+
+
+def test_two_services_in_one_question():
+    text, quote, state, _ = dialog.answer(catalog.NICHES["fitness"], {}, "есть пробное и сколько стоит месяц")
+    assert "Пробное занятие" in text and "Месяц без ограничений" in text
+    assert quote["service_id"] in ("trial", "month")
 
 
 def test_dialog_quotes_when_qty_known():

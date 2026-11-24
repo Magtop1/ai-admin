@@ -8,7 +8,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from .catalog import Niche, find_service, hits
+from .catalog import Niche, find_services, hits
 
 NUM_WORDS = {
     "один": 1, "одну": 1, "два": 2, "две": 2, "три": 3, "четыре": 4, "пять": 5,
@@ -26,6 +26,7 @@ QTY_RE = re.compile(r"(\d[\d\s]{0,7})\s*(тыс|тысяч|шт|штук|лис�
 class Parsed:
     intent: str
     service_id: str | None = None
+    services: list[str] = field(default_factory=list)
     qty: int | None = None
     urgent: bool = False
     phone: str | None = None
@@ -74,10 +75,11 @@ def parse(text: str, niche: Niche) -> Parsed:
         p.booking = True
         p.tags.append("booking")
 
-    svc = find_service(niche, low)
-    if svc:
-        p.service_id = svc.id
-        p.tags.append("service:" + svc.id)
+    found = find_services(niche, low)
+    if found:
+        p.services = [s.id for s in found]
+        p.service_id = found[0].id
+        p.tags.extend("service:" + s.id for s in found)
 
     qty = _qty(low)
     if qty:

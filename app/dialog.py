@@ -56,22 +56,22 @@ def answer(niche: Niche, state: dict, text: str) -> tuple[str, dict | None, dict
     attach_lead = False
     quote_payload = None
 
-    if p.service_id:
-        state["service"] = p.service_id
+    if p.services:
+        known = list(dict.fromkeys(list(state.get("services") or []) + p.services))
+        state["services"] = known[:3]
+        state["service"] = known[0]
     if p.qty:
         state["qty"] = p.qty
     if p.urgent:
         state["urgent"] = True
 
-    service = next((s for s in niche.services if s.id == state.get("service")), None)
+    ids = state.get("services") or ([state["service"]] if state.get("service") else [])
+    services = [s for s in (next((x for x in niche.services if x.id == i), None) for i in ids) if s]
 
     # человек уже написал телефон: ловим заявку
     if p.phone:
         state["phone"] = p.phone
         attach_lead = True
-
-    if p.intent == "greeting" and not service:
-        return niche.greeting, None, state, attach_lead
 
     if p.intent == "human":
         return (
@@ -82,31 +82,40 @@ def answer(niche: Niche, state: dict, text: str) -> tuple[str, dict | None, dict
             attach_lead,
         )
 
-    if not service:
+    if p.intent == "greeting" and not services:
+        return niche.greeting, None, state, attach_lead
+
+    if not services:
         tail = f" Если нужен расчёт, назовите услугу и объём. {_service_hint(niche)}"
-        return ("Понял вопрос, но пока не вижу, о какой услуге речь." + tail), None, state, attach_lead
+        extra = " Если услуги нет в списке, оставьте телефон: администратор посмотрит и ответит."
+        return ("Понял вопрос, но пока не вижу, о какой услуге речь." + tail + extra), None, state, attach_lead
 
-    qty = state.get("qty") if service.per_unit else None
-    q = pricing.quote(niche, service, qty, bool(state.get("urgent")))
-    quote_payload = _quote_payload(q)
+    primary = services[0]
+
+    if primary.per_unit and not state.get("qty"):
+        quote_payload = None
+        return (
+            f"{primary.name}: {RUB(primary.price)} {primary.unit}.\n"
+            "Скажите тираж, и я покажу цену с учётом скидки от объёма.\n" + niche.price_note
+        ), quote_payload, state, attach_lead
+
+    blocks, payload = [], None
+    for svc in services[:2]:
+        qty = state.get("qty") if svc.per_unit else None
+        q = pricing.quote(niche, svc, qty, bool(state.get("urgent")))
+        if payload is None:
+            payload = _quote_payload(q)
+        blocks.append(q.as_text(include_note=False))
+
     state["stage"] = "quoted"
+    parts = ["\n\n".join(blocks)]
+    if niche.price_note:
+        parts.append(niche.price_note)
 
-    if service.per_unit and not state.get("qty"):
-        text_lines = [
-            f"{service.name}: {RUB(service.price)} {service.unit}.",
-            "Скажите тираж, и я покажу цену с учётом скидки от объёма.",
-            niche.price_note,
-        ]
-        return "\n".join(text_lines), quote_payload, state, attach_lead
-
-    parts = [q.as_text()]
-
-    if p.booking or p.intent == "booking":
+    if any(s.price == 0 for s in services[:2]) or (p.booking or p.intent == "booking"):
         slots = _slots()
         parts.append("Свободное время: " + ", ".join(slots) + ".")
         parts.append("Напишите время и телефон, запишу. Или назовите другое время, проверю.")
-    elif service.price == 0:
-        parts.append("Записать вас? Напишите удобный день и телефон.")
     else:
         parts.append("Если подходит, оставьте телефон, передам администратору и зафиксирую цену.")
         if niche.unknown:
@@ -115,4 +124,4 @@ def answer(niche: Niche, state: dict, text: str) -> tuple[str, dict | None, dict
     if p.phone:
         parts.append(f"Телефон записал: {p.phone}. Администратор свяжется в рабочее время.")
 
-    return "\n".join(parts), quote_payload, state, attach_lead
+    return "\n".join(parts), payload, state, attach_lead
